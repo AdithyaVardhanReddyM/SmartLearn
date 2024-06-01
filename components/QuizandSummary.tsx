@@ -16,7 +16,7 @@ const QuizandSummary = ({ chatId }: Props) => {
           <div>
             <p className="text-center">Quiz</p>
             <p className="text-gray-500 text-sm">
-              AI generated Quiz (MCQ's) on your PDF!
+              AI generated Quiz (MCQs) on your PDF!
             </p>
           </div>
         </Link>
