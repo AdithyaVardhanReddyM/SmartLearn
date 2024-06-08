@@ -31,7 +31,7 @@ export async function getSummary(chatId: number) {
 
   try {
     const result = await generateText({
-      model: google("models/gemini-1.5-pro-latest"),
+      model: google("models/gemini-1.5-flash-latest"),
       prompt: `Generate a summary using the data : ${data}`,
     });
 
@@ -58,7 +58,7 @@ export async function getMermaid(chatId: number) {
 
   try {
     const result = await generateText({
-      model: google("models/gemini-1.5-pro-latest"),
+      model: google("models/gemini-1.5-flash-latest"),
       prompt: `Generate only mermaid code (Important: No parentesis () anywhere in the code ), no text summarizing using the data : ${data}\n only mermaid code, no text. Strict Instruction: No parentesis () or [] inside blocks`,
     });
 

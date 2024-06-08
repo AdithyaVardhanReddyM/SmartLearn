@@ -33,7 +33,7 @@ export async function getQuiz(chatId: number) {
   const amount = 8;
   try {
     const result = await generateObject({
-      model: google("models/gemini-1.5-pro-latest"),
+      model: google("models/gemini-1.5-flash-latest"),
       prompt: `Generate an array of multiple-choice questions (MCQs) (Do not use apostrophes for keys.) on the topic: ${data} in the amount: ${amount}. Return the output in JSON format. Ensure that only the values are enclosed in double quotes (""), and the keys are not enclosed in any quotes. Use the following format for the JSON object:
       [
         {

@@ -17,7 +17,6 @@ const MermaidChart = async ({ chatId }: { chatId: number }) => {
     }
   );
   const finalCode = convertedCode.replace(/\(/g, "'").replace(/\)/g, "'");
-  console.log(finalCode);
   //   const finalCode = `
   // graph LR
   //     A[Dual Faster R-CNN Network] --> B{Cross-transformer Module}
