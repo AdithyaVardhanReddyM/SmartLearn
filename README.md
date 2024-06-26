@@ -1,124 +1,47 @@
-# Smart Learn
-
-<div align="center">
-  <br />
-    <a href="" target="_blank">
-     <img width="1237" alt="Screenshot 2024-06-08 at 9 31 00 AM" src="https://github.com/AdithyaVardhanReddyM/SmartLearn/assets/127095306/8277c89d-2572-479b-bbce-5db3746bf9da"> 
-    </a>
-  <br />
-</div>
-
-# Live Site - https://smartlearn-p.vercel.app/
-
-## 📋 <a name="table">Table of Contents</a>
-
-1. ⚙️ [Tech Stack](#tech-stack)
-2. 🤖 [Introduction](#introduction)
-3. 🔋 [Features](#features)
-4. 💻 [Set up locally](#quick-start)
-
 ## <a name="tech-stack">⚙️ Tech Stack</a>
 
 <div>
     <img src="https://img.shields.io/badge/-Next_JS-black?style=for-the-badge&logoColor=white&logo=nextdotjs&color=000000" alt="nextdotjs" />
-    <img src="https://img.shields.io/badge/Drizzle-black?style=for-the-badge&logo=Drizzle&logoColor=green" alt="drizzle" />
-    <img src="https://img.shields.io/badge/gemini%20ai-4285F4?style=for-the-badge&logo=google%20assistant&logoColor=white" alt="ai"/>
     <img src="https://img.shields.io/badge/-Tailwind_CSS-black?style=for-the-badge&logoColor=white&logo=tailwindcss&color=06B6D4" alt="tailwindcss" />
-    <img src="https://img.shields.io/badge/-Clerk-black?style=for-the-badge&logoColor=white&logo=clerk&color=6C47FF" alt="clerk" />
     <img src="https://img.shields.io/badge/-Shadcn_UI-black?style=for-the-badge&logoColor=white&logo=shadcnui&color=000000" alt="shadcnui" />
     <img src="https://img.shields.io/badge/-Zod-black?style=for-the-badge&logoColor=white&logo=zod&color=3E67B1" alt="zod" />
     <img src="https://img.shields.io/badge/-Typescript-black?style=for-the-badge&logoColor=white&logo=typescript&color=3178C6" alt="typescript" />
-    <img src="https://img.shields.io/badge/-Pinecone-blue?style=for-the-badge&logoColor=white&logo=pinecone&color=white" alt="pinecone" />
+    <img src="https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white" alt="firebase" />
+    <img src="https://img.shields.io/badge/Axios-purple?style=for-the-badge&logo=axios&logoColor=white" alt="firebase" />
+    <img src="https://img.shields.io/badge/Uploadthing-red?style=for-the-badge&logo=&logoColor=white" alt="uploadthing" />
 </div>
 
-## <a name="introduction">🤖 Introduction</a>
+## Getting Started
 
-- **Contextual AI Chat:** Users can ask questions and receive detailed, relevant answers based on the content of the uploaded PDF. This is powered by RAG, ensuring the AI's responses are grounded in the document's specific information.
-
-- **Summarization:** The platform can generate concise summaries of the PDF, highlighting the most important points and providing users with a quick overview of the document's content.
-
-- **Mind Mapping:** Users can create visual mind maps that represent the structure and key concepts of the PDF, aiding in better comprehension and retention of information.
-
-- **Custom Quiz Generation:** The AI can generate quizzes based on the PDF's content, allowing users to test their understanding and reinforce their knowledge.
-
-## <a name="features">🔋 Features</a>
-
-### AI Chat
-
-<img src="https://github.com/AdithyaVardhanReddyM/SmartLearn/blob/main/public/chat.png" alt="aichat"/>
-
-- The AI chat feature of this platform revolutionizes user interaction with PDF documents. Upon uploading a PDF, the text is parsed, chunked, and vectorized, then stored in a vector database like Pinecone. When a user asks a question, the system performs a semantic search to find the most relevant text chunks from the PDF. These chunks are used to ground the language model (LLM) **(RAG)**, enabling it to generate accurate and contextually relevant responses. This ensures that users receive precise answers based on the actual content of their documents, making information retrieval efficient and interactive.
-
-### AI Quiz
-
-<img src="https://github.com/AdithyaVardhanReddyM/SmartLearn/blob/main/public/quiz.png" alt="aichat"/>
-
-- The custom AI quiz generation feature enhances learning by creating personalized quizzes from uploaded PDF documents. After a user uploads a PDF, the platform parses and analyzes the text to identify key concepts and important details. Based on this analysis, it generates quiz questions that target essential information from the document. This interactive feature helps users reinforce their understanding and retention of the content, making the learning process more engaging and effective.
-
-### AI FLow-Chart
-
-<img src="https://github.com/AdithyaVardhanReddyM/SmartLearn/blob/main/public/flowchart.png" alt="aichat"/>
-
-- The mindmap generation feature transforms the content of uploaded PDF documents into visual mindmaps or flowcharts. When a user uploads a PDF, the platform analyzes the document to identify main topics, subtopics, and their relationships. Using this information, it generates a structured and interactive mindmap, providing a clear visual representation of the document's key concepts and their connections. This feature aids users in better understanding and retaining information by presenting it in an organized and visually appealing format. Flowcharts are rendered with `react-mermaid`
-
-### AI Summary
-
-- User can also access the Summary of the PDF generated by AI, alowing users to quickly grasp important content from the PDF.
-
-## <a name="quick-start">💻 Set up locally</a>
-
-Follow these steps to set up the project locally on your machine.
-
-**Prerequisites**
-
-Make sure you have the following installed on your machine:
-
-- [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/en)
-- [npm](https://www.npmjs.com/) (Node Package Manager)
-
-**Cloning the Repository**
-
-```bash
-git clone https://github.com/AdithyaVardhanReddyM/SmartLearn.git
-cd smartlearn
-```
-
-**Installation**
-
-Install the project dependencies using npm:
-
-```bash
-npm install
-```
-
-**Set Up Environment Variables**
-
-Create a new file named `.env` in the root of your project and add the following content:
-
-```env
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
-
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=
-
-DATABASE_URL =
-
-UPLOADTHING_SECRET=
-UPLOADTHING_APP_ID=
-
-PINECONE_ENVIRONMENT =
-PINECONE_API_KEY =
-
-COHERE_API_KEY =
-
-GOOGLE_GENERATIVE_AI_API_KEY =
-```
-
-Replace the placeholder values with your actual credentials.
-**Running the Project**
+First, run the development server:
 
 ```bash
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
