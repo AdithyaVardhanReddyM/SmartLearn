@@ -94,7 +94,7 @@ npm install
 
 **Set Up Environment Variables**
 
-Create a new file named `.env` in the root of your project and add the following content:
+Create a new file named `.env` in the root of your project and add the following:
 
 ```env
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
