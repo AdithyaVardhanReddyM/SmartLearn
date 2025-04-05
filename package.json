@@ -11,6 +11,7 @@
   "dependencies": {
     "@ai-sdk/google": "^0.0.17",
     "@clerk/nextjs": "^5.1.2",
+    "@google/generative-ai": "^0.24.0",
     "@langchain/community": "^0.2.3",
     "@neondatabase/serverless": "^0.9.3",
     "@pinecone-database/doc-splitter": "^0.0.1",
