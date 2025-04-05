@@ -1,52 +1,118 @@
 import { db } from "@/lib/db";
 import { chats, messages as _messages } from "@/lib/db/schema";
 import { getContext } from "@/lib/getcontext";
-import { google } from "@ai-sdk/google";
-import { streamText } from "ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
-// export const runtime = "edge";
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
 
 export async function POST(req: Request) {
-  const { messages, chatId } = await req.json();
-  const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
-  if (_chats.length != 1) {
-    return NextResponse.json({ error: "chat not found" }, { status: 404 });
+  try {
+    const { messages, chatId }: { messages: any[]; chatId: number } =
+      await req.json();
+
+    const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
+    if (_chats.length !== 1) {
+      return NextResponse.json({ error: "Chat not found" }, { status: 404 });
+    }
+
+    const fileKey = _chats[0].fileKey;
+    const lastMessage = messages[messages.length - 1];
+    const context = await getContext(lastMessage.content, fileKey);
+
+    const systemInstruction = {
+      role: "model" as const,
+      parts: [
+        {
+          text: `You are a helpful AI assistant. Use this context when answering:
+${context || "No specific context available"}
+
+If the question isn't answered by the context, say:
+"I couldn't find that in the document, but here's what I know:"`,
+        },
+      ],
+    };
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-pro-latest",
+      systemInstruction,
+    });
+
+    const chat = model.startChat({
+      history: messages.map((msg) => ({
+        role: msg.role === "user" ? "user" : "model",
+        parts: [{ text: msg.content }],
+      })),
+      generationConfig: {
+        temperature: 0.5,
+        maxOutputTokens: 4096,
+      },
+    });
+
+    const result = await chat.sendMessageStream(lastMessage.content);
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        let fullResponse = "";
+
+        for await (const chunk of result.stream) {
+          const chunkText = chunk.text();
+          fullResponse += chunkText;
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                id: Date.now().toString(),
+                role: "system",
+                content: chunkText,
+              })}\n\n`
+            )
+          );
+        }
+
+        // Save to database
+        await db.insert(_messages).values([
+          {
+            chatId,
+            content: lastMessage.content,
+            role: "user",
+          },
+          {
+            chatId,
+            content: fullResponse,
+            role: "system",
+          },
+        ]);
+
+        // Send final message with complete flag
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({
+              id: "complete",
+              role: "system",
+              content: fullResponse,
+              complete: true,
+            })}\n\n`
+          )
+        );
+
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+    });
+  } catch (error: any) {
+    console.error("Error in chat API:", error);
+    return NextResponse.json(
+      { error: "Internal server error", details: error.message },
+      { status: 500 }
+    );
   }
-  const fileKey = _chats[0].fileKey;
-  const lastMessage = messages[messages.length - 1];
-  const context = await getContext(lastMessage.content, fileKey);
-
-  const prompt = {
-    role: "system",
-    content: `
-    AI is a well-behaved and well-mannered individual.
-    AI is always friendly, kind, and inspiring, and he is eager to provide vivid and thoughtful responses to the user.
-    START CONTEXT BLOCK
-    ${context}
-    END OF CONTEXT BLOCK
-    AI assistant will take into account CONTEXT BLOCK that is provided in a conversation and takes into account of CONTEXT and QUERY and gives the relevant "detailed" answer.
-    If the context does not provide the answer to question, the AI assistant use its knowledge to give information and say "But can't retrieve exact information from PDF".
-    AI assistant will not apologize for previous responses, but instead will indicated new information was gained.
-    `,
-  };
-
-  const result = await streamText({
-    model: google("models/gemini-1.5-pro-latest"),
-    messages: [prompt, ...messages],
-    onFinish: async () => {
-      await db.insert(_messages).values({
-        chatId,
-        content: lastMessage.content,
-        role: "user",
-      });
-      await db.insert(_messages).values({
-        chatId,
-        content: await result.text,
-        role: "system",
-      });
-    },
-  });
-  return result.toAIStreamResponse();
 }
