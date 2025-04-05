@@ -3,9 +3,8 @@ import { db } from "./db";
 import { chats } from "./db/schema";
 import { GetPdftolocal } from "./getpdf";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
-import { generateObject } from "ai";
-import { google } from "@ai-sdk/google";
 import { z } from "zod";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 type PDFPage = {
   pageContent: string;
@@ -13,6 +12,17 @@ type PDFPage = {
     loc: { pageNumber: number };
   };
 };
+
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+const schema = z.array(
+  z.object({
+    question: z.string(),
+    options: z.array(z.string()),
+    correctAnswer: z.number(),
+  })
+);
 
 export async function getQuiz(chatId: number) {
   const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
@@ -22,8 +32,10 @@ export async function getQuiz(chatId: number) {
   if (!file_name) {
     throw new Error("could not download the pdf");
   }
+
   const loader = new PDFLoader(file_name);
   const pages = (await loader.load()) as PDFPage[];
+
   const data = pages
     .slice(0, 5)
     .map((page) => page.pageContent)
@@ -31,31 +43,44 @@ export async function getQuiz(chatId: number) {
     .replace(/\n/g, "");
 
   const amount = 8;
-  try {
-    const result = await generateObject({
-      model: google("models/gemini-1.5-flash-latest"),
-      prompt: `Generate an array of multiple-choice questions (MCQs) (Do not use apostrophes for keys.) on the topic: ${data} in the amount: ${amount}. Return the output in JSON format. Ensure that only the values are enclosed in double quotes (""), and the keys are not enclosed in any quotes. Use the following format for the JSON object:
-      [
-        {
-          question: "Your question here",
-          options: ["Option 1", "Option 2", "Option 3", "Option 4"],
-          answer: "Correct answer"
-        },
-        ...
-      ]
-      Do not use apostrophes for keys.`,
-      schema: z.array(
-        z.object({
-          question: z.string().describe("the question here"),
-          options: z
-            .array(z.string())
-            .describe("4 options here including correct answer"),
-          correctAnswer: z.number().describe("index of correct answer"),
-        })
-      ),
-    });
 
-    const responses = result.object;
-    return responses;
-  } catch (error) {}
+  const prompt = `
+Generate an array of ${amount} multiple-choice questions (MCQs) on the topic below. 
+
+**Instructions:**
+- Return the output as a JSON array.
+- Do not use apostrophes in keys.
+- Each object should have:
+  - question (string)
+  - options (array of 4 strings, including the correct answer)
+  - correctAnswer (index of correct option, starting from 0)
+
+**Topic:**
+${data}
+
+**Output Format:**
+[
+  {
+    question: "Your question here",
+    options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+    correctAnswer: 2
+  },
+  ...
+]
+`;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const text = result.response.text().trim();
+
+    // Remove markdown ```json wrapper if present
+    const cleaned = text.replace(/^```json|```$/gim, "").trim();
+
+    const parsed = JSON.parse(cleaned);
+    const validated = schema.parse(parsed);
+    return validated;
+  } catch (error: any) {
+    console.error("Error generating quiz:", error);
+    return undefined;
+  }
 }
